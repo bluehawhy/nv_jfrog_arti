@@ -5,3 +5,5 @@ __pycache__/
 template/readMe/
 *.log
 output.txt
+*.crt
+*.key
