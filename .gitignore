@@ -7,3 +7,5 @@ template/readMe/
 output.txt
 *.crt
 *.key
+*.pem
+*.pfx
