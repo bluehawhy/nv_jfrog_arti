@@ -75,7 +75,7 @@ def check_artifactory_connection(server_id=config_data['swf_server']['serverId']
     return connection_status
             
 def download_file_from_artifactory(arti_path, local_path):
-    cmd = f"jf rt dl {arti_path} {local_path}"
+    cmd = f'jf rt dl "{arti_path}" "{local_path}"'
     logging.info(cmd)
     os.system(cmd)
     return 0
