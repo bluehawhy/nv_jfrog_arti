@@ -5,4 +5,3 @@ __pycache__/
 template/readMe/
 *.log
 output.txt
-test_cycle_template
