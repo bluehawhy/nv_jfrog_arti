@@ -1,12 +1,11 @@
 from mailbox import linesep
 import os
+import json
 
 from _src._api import config, logger, method_logger
 
 logging = logger.logger
 
-
-logging= logger.logger
 
 config_path ='static\config\config.json'
 config_data =config.load_config(config_path)
@@ -21,9 +20,14 @@ def send_cmd(cmd):
     os.system('del static\\temp\\result.txt')
     return lines
 
-
-
 #=================method call =================
+@method_logger.print_method
+def search_file_list_in_artifactory(arti_path):
+    cmd = f'jf rt s "{arti_path}"'
+    lines = send_cmd(cmd)
+    lines = json.loads(lines)    
+    return lines
+
 @method_logger.print_method
 def install_jfrog_lib():
     # 1. check version
@@ -73,8 +77,42 @@ def check_artifactory_connection(server_id=config_data['swf_server']['serverId']
     else:
         logging.info("Artifactory Connection : NOK")
     return connection_status
+
+@method_logger.print_method
+def sync_arti_local(arti_path, local_path):
+    def sync_file_local(arti_file, local_path):
+        #set variable
+        file_path_local = os.path.join(local_path,*arti_file['path'].split('/')[1:])
+        file_path_arti = arti_file['path']
+        file_check_local = os.path.exists(file_path_local)
             
-def download_file_from_artifactory(arti_path, local_path):
+        file_size_in_local = os.path.getsize(file_path_local) if file_check_local is True else 0
+        file_size_in_arti = file['size']
+        file_size_check = True if str(file_size_in_local) == str(file_size_in_arti) else False
+            
+        #there is no file in local
+        if file_check_local is False:
+            logging.info(f'check file in local - {file_check_local}')
+            download_a_file_from_artifactory(file_path_arti,local_path)
+            return 0
+        #there is file but diff size.
+        if file_size_check is False:
+            logging.info(f'local size - {file_size_in_local}, arti size - {file_size_in_arti}')
+            download_a_file_from_artifactory(file_path_arti,local_path)
+            return 0
+        else:
+            logging.info(f'check file in local - {file_check_local}, file_size_check - {file_size_check}')
+            return 0
+
+    #search file list and convert one
+    file_lists = search_file_list_in_artifactory(arti_path)
+    for file in file_lists:
+        logging.info(f"start download - {file['path']}")
+        sync_file_local(file, local_path)
+    logging.info(f"finish download - {arti_path}")
+    return 0
+
+def download_a_file_from_artifactory(arti_path, local_path):
     cmd = f'jf rt dl "{arti_path}" "{local_path}"'
     logging.info(cmd)
     os.system(cmd)
