@@ -69,12 +69,35 @@ def install_jfrog_lib():
     lines= send_cmd(cmd)    
     if 'jf version' in lines:
         logging.info(f'installed - {lines}')
+        return True, 'already installed'
     else:
         logging.info(f'install jf lib')
         cmd = "powershell \"Start-Process -Wait -Verb RunAs powershell '-NoProfile iwr https://releases.jfrog.io/artifactory/jfrog-cli/v2-jf/[RELEASE]/jfrog-cli-windows-amd64/jf.exe -OutFile $env:SYSTEMROOT\system32\jf.exe'\"; jf intro"
         logging.info(cmd)
         os.system(cmd)
-    return 0
+        #checking again.
+        cmd = 'jf -v'
+        lines= send_cmd(cmd)
+        if 'jf version' in lines:
+            logging.info(f'installed - {lines}')
+            return True, 'installed'
+        else:
+            logging.info(f'not installed - {lines}')
+            return False, 'not installed'
+
+@method_logger.print_method
+def update_jfrog_server_config(
+    user = config_data['swf_server']['user'], 
+    password = config_data['swf_server']['password'],
+    last_arti = config_data['last_arti'],
+    last_path = config_data['last_path']):
+    config_data['swf_server']['user'] = user
+    config_data['swf_server']['password'] = password
+    config_data['last_arti'] = last_arti
+    config_data['last_path'] = last_path
+    config.save_config(config_data,config_path)
+    return config_data
+
 
 @method_logger.print_method
 def setup_jfrog_server_config():
