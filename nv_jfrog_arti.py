@@ -1,8 +1,7 @@
 import os
 
 from _src._api import logger
-from _src import jfrog_arti
-
+from _src import jfrog_arti, jfrog_arti_cmd, jfrog_arti_ui
 
 logging= logger.logger
 
@@ -28,18 +27,9 @@ def file_check_in_pc(file = None,path='./static/temp'): #return type : bool
         #logging.info(f'file already exist - {loca_file_path}')
     return check_value
 
-
-
-
-
-
 def start():
-    arti_path = 'apricotbscqal-delivery-release/E048.1/deliverables/swup/dev/'
-    local_path = 'D:/HUSW/'
-    jfrog_arti.sync_arti_local(arti_path, local_path)
-    #print(os.path.exists('D:/HUSW/E048.1/deliverables/swup/prod/BOOT/configs-BOOT-production.tar'))
-    #jfrog_arti.download_a_file_from_artifactory(arti_path,local_path)
-    #print(os.path.exists('D:/HUSW/E048.1/deliverables/swup/prod/BOOT/configs-BOOT-production.tar'))
-
+    jfrog_arti_cmd.main()
+    return 0
+    
 if __name__ =='__main__':
     start()
